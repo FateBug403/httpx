@@ -1,10 +1,10 @@
 package wappalyzer
 
 import (
-	fingerprintModel "FateBugGUI/pkg/InfoCollection/model/fingerprint"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	fingerprintModel "github.com/FateBug403/httpx/common/wappalyzer/model/fingerprint"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
