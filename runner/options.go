@@ -340,7 +340,7 @@ var DefaultOptions = &Options{
 	ZTLS:false,
 	NoDecode:false,
 	// 优化配置
-	NoFallback:false,
+	NoFallback:true, // 同时使用http和https进行探测
 	NoFallbackScheme:false,
 	HostMaxErrors:30,
 	ExcludeCDN:false,
