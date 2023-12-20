@@ -1724,7 +1724,7 @@ retry:
 	domainFile := URL.EscapedString()
 	hash := hashes.Sha1([]byte(domainFile))
 	domainResponseFile := fmt.Sprintf("%s.txt", hash)
-	screenshotResponseFile := fmt.Sprintf("%s.png", hash)
+	//screenshotResponseFile := fmt.Sprintf("%s.png", hash)
 	hostFilename := strings.ReplaceAll(URL.Host, ":", "_")
 	domainResponseBaseDir := filepath.Join(scanopts.StoreResponseDirectory, "response")
 	domainScreenshotBaseDir := filepath.Join("uploads", "screenshot") // 截图保存路径
@@ -1800,7 +1800,9 @@ retry:
 		headlessBody    string
 	)
 	if scanopts.Screenshot {
-		screenshotPath = fileutilz.AbsPathOrDefault(filepath.Join(screenshotBaseDir, screenshotResponseFile))
+		imagHash := hashes.Sha1([]byte(fullURL)) // 使用完整url的hash保存图片
+		screenshotPath = fileutilz.AbsPathOrDefault(filepath.Join(screenshotBaseDir, fmt.Sprintf("%s.png", imagHash)))
+		//screenshotPath = fileutilz.AbsPathOrDefault(filepath.Join(screenshotBaseDir, screenshotResponseFile))
 		var err error
 		// 获取截图
 		screenshotBytes, headlessBody, err = r.browser.ScreenshotWithBody(fullURL, r.hp.Options.Timeout)
