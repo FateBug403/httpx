@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"os/signal"
 	"runtime"
@@ -56,7 +57,9 @@ func main() {
 		}
 	}()
 
-	httpxRunner.RunEnumeration()
+	httpxRunner.RunEnumeration(func(r runner.Result) {
+		log.Println(r.URL)
+	})
 	httpxRunner.Close()
 }
 

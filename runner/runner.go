@@ -26,26 +26,26 @@ import (
 
 	"golang.org/x/exp/maps"
 
+	"github.com/FateBug403/httpx/common/customextract"
+	"github.com/FateBug403/httpx/common/hashes/jarm"
 	"github.com/PuerkitoBio/goquery"
 	asnmap "github.com/projectdiscovery/asnmap/libs"
 	dsl "github.com/projectdiscovery/dsl"
 	"github.com/projectdiscovery/fastdialer/fastdialer"
 	"github.com/projectdiscovery/mapcidr/asn"
 	errorutil "github.com/projectdiscovery/utils/errors"
-	"github.com/FateBug403/httpx/common/customextract"
-	"github.com/FateBug403/httpx/common/hashes/jarm"
 
 	"github.com/Mzack9999/gcache"
 	"github.com/logrusorgru/aurora"
 	"github.com/pkg/errors"
 
+	"github.com/FateBug403/httpx/common/hashes"
 	"github.com/projectdiscovery/clistats"
 	"github.com/projectdiscovery/goconfig"
 	"github.com/projectdiscovery/retryablehttp-go"
 	sliceutil "github.com/projectdiscovery/utils/slice"
 	stringsutil "github.com/projectdiscovery/utils/strings"
 	urlutil "github.com/projectdiscovery/utils/url"
-	"github.com/FateBug403/httpx/common/hashes"
 
 	"github.com/projectdiscovery/ratelimit"
 	"github.com/remeh/sizedwaitgroup"
@@ -1853,6 +1853,7 @@ retry:
 		VHost:              isvhost,
 		WebServer:          serverHeader,
 		ResponseBody:       serverResponseRaw,
+		ResponseDateStr: resp.DateStr,
 		WebSocket:          isWebSocket,
 		TLSData:            resp.TLSData,
 		CSPData:            resp.CSPData,

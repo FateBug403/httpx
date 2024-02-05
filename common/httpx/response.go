@@ -14,6 +14,7 @@ type Response struct {
 	Headers       map[string][]string
 	RawData       []byte // undecoded data
 	Data          []byte // decoded data
+	DateStr       string
 	//ReaderBody    io.ReadCloser
 	ContentLength int
 	Raw           string

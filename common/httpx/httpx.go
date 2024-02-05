@@ -249,6 +249,7 @@ get_response:
 
 
 	resp.Data = respbody
+	resp.DateStr = respbodystr
 
 	// fill metrics
 	resp.StatusCode = httpresp.StatusCode
