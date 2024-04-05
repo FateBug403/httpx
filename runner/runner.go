@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 
 	//"log"
 	"net"
@@ -588,7 +587,8 @@ type resultFunc func(r Result)
 
 // RunAlone 进行单个链接获取
 func (r *Runner) RunAlone(target string,reqResult resultFunc) {
-	wg := sizedwaitgroup.New(r.options.Threads)
+	wg := sizedwaitgroup.New(5)
+	//wg := sizedwaitgroup.New(r.options.Threads)
 
 	output := make(chan Result)
 	// 建立一个线程处理输出
@@ -917,15 +917,15 @@ func (r *Runner) RunEnumeration(reqResult resultFunc) {
 					}
 				}
 			}
-			row := resp.str
-			if r.options.JSONOutput {
-				row = resp.JSON(&r.scanopts)
-			} else if r.options.CSVOutput {
-				row = resp.CSVRow(&r.scanopts)
-
-			}
+			//row := resp.str
+			//if r.options.JSONOutput {
+			//	row = resp.JSON(&r.scanopts)
+			//} else if r.options.CSVOutput {
+			//	row = resp.CSVRow(&r.scanopts)
+			//
+			//}
 			// 下面这段代码是http最终输出到终端的代码
-			gologger.Silent().Msgf("%s\n", row)
+			//gologger.Silent().Msgf("%s\n", row)
 			//log.Println(resp.Jarm)
 			reqResult(resp)
 			//reqResult<-resp //返回过滤后的值
@@ -985,10 +985,8 @@ func (r *Runner) RunEnumeration(reqResult resultFunc) {
 	wg.Wait()
 
 	close(output)
-	log.Println("关闭输出通道")
 
 	wgoutput.Wait()
-	log.Println("退出程序")
 }
 
 // GetScanOpts 获取扫描配置选项
@@ -1007,9 +1005,6 @@ func (r *Runner) process(t string, wg *sizedwaitgroup.SizedWaitGroup, hp *httpx.
 	}
 
 	for target := range r.targets(hp, stringz.TrimProtocol(t, scanopts.NoFallback || scanopts.NoFallbackScheme)) {
-		//log.Println(target)
-		// 如果没有指定自定义端口，则测试默认端口
-		//log.Println(customport.Ports)
 		if len(customport.Ports) == 0 {
 			for _, method := range scanopts.Methods {
 				for _, prot := range protocols {
@@ -1242,8 +1237,8 @@ retry:
 	// 发起请求，获取响应
 	resp, err := hp.Do(req, httpx.UnsafeOptions{URIPath: reqURI})
 	if err != nil {
-		log.Println(req.URL.String()+":"+err.Error())
-		return  Result{URL: target.Host, Input: origInput, Err: err}
+		//log.Println(req.URL.String()+":"+err.Error())
+		//return  Result{URL: target.Host, Input: origInput, Err: err}
 		//log.Println(req.URL.String()+":"+err.Error())
 	}
 	if r.options.ShowStatistics {

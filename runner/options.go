@@ -344,7 +344,7 @@ var DefaultOptions = &Options{
 	NoFallbackScheme:false,
 	HostMaxErrors:30,
 	ExcludeCDN:false,
-	Retries:3,
+	Retries:1,
 	Timeout:15,
 	Delay:-1,
 	MaxResponseBodySizeToSave:math.MaxInt32,

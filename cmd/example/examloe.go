@@ -18,16 +18,28 @@ func main() {
 	//	log.Println(err)
 	//	return
 	//}
-	//option.InputTargetHost = []string{
-	//	"116.228.187.163",
-	//}
+	option.InputTargetHost = []string{
+		"http://www.example.com/",
+	}
 	hpx, err := httpx.New(option)
 	if err != nil {
 		log.Println(err)
 	}
-	//hpx.RunEnumeration()
-	hpx.RunAlone("http://116.228.187.163", func(r httpx.Result) {
-		log.Println(r.URL+"指纹为："+strings.Join(r.Technologies,","))
+	hpx.RunEnumeration(func(r httpx.Result) {
+		if r.Err!=nil{
+			log.Println(r.Err.Error())
+		}else {
+			log.Println(r.URL+"指纹为："+strings.Join(r.Technologies,","))
+		}
 	})
+	//hpx.RunAlone("http://www.example.com/", func(r httpx.Result) {
+	//	if r.Err!=nil{
+	//		log.Println(r.Err.Error())
+	//		return
+	//	}else {
+	//		log.Println(r.URL+"指纹为："+strings.Join(r.Technologies,","))
+	//	}
+	//
+	//})
 
 }
