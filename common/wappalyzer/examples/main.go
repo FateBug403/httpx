@@ -1,8 +1,8 @@
 package main
 
 import (
-	wappalyzer "github.com/FateBug403/httpx/common/wappalyzer"
 	"fmt"
+	wappalyzer "github.com/FateBug403/httpx/common/wappalyzer"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	resp, err := http.DefaultClient.Get("http://116.113.33.42:8010/")
+	resp, err := http.DefaultClient.Get("http://116.228.187.163/")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -3,6 +3,7 @@ module github.com/FateBug403/httpx
 go 1.20
 
 require (
+	github.com/FateBug403/util v1.0.4
 	github.com/Mzack9999/gcache v0.0.0-20230410081825-519e28eab057
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/bxcodec/faker/v4 v4.0.0-beta.3

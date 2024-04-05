@@ -340,11 +340,11 @@ var DefaultOptions = &Options{
 	ZTLS:false,
 	NoDecode:false,
 	// 优化配置
-	NoFallback:true, // 同时使用http和https进行探测
+	NoFallback:false, // 默认情况下http如果会先进行https请求，如果失败再进行一次http请求，但是如何设置这个会同时使用http和https进行探测
 	NoFallbackScheme:false,
 	HostMaxErrors:30,
 	ExcludeCDN:false,
-	Retries:0,
+	Retries:3,
 	Timeout:15,
 	Delay:-1,
 	MaxResponseBodySizeToSave:math.MaxInt32,

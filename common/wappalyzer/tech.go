@@ -8,8 +8,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
-	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -30,11 +28,6 @@ func New() (*Wappalyze, error) {
 	if err != nil {
 		return nil, err
 	}
-	//for name,value:=range wappalyze.fingerprints.Apps{
-	//	if len(value.pocs)>0{
-	//		log.Println(name)
-	//	}
-	//}
 
 	return wappalyze, nil
 }
@@ -70,166 +63,18 @@ func (s *Wappalyze) ImportFingerprintsForDatabase(dsn string) error {
 	return nil
 }
 
-// ImportChunsouFingerDatabase 导入指纹到数据库中
-func (s *Wappalyze) ImportChunsouFingerDatabase(dsn string) error {
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		fmt.Println("Failed to connect to database:", err)
-		return err
-	}
-
-	type ChunsouFinger struct {
-		Fingerprint []struct {
-			Cms      string   `json:"cms"`
-			Method   string   `json:"method"`
-			Location string   `json:"location"`
-			Keyword  []string `json:"keyword"`
-		} `json:"fingerprint"`
-	}
-	// 自动迁移表结构
-	err = db.AutoMigrate(&fingerprintModel.Fingerprint{})
-	if err != nil {
-		fmt.Println("Failed to migrate table:", err)
-		return err
-	}
-	var chunsoufingerStruct ChunsouFinger
-	err = json.Unmarshal([]byte(fingerChonsou), &chunsoufingerStruct) // 将指定json文件反序列化到指纹结构体中
-	if err != nil {
-		return err
-	}
-
-	for _, fingerprint := range chunsoufingerStruct.Fingerprint {
-		// 赋值
-		tmpfingerprint := &fingerprintModel.Fingerprint{}
-		if fingerprint.Location =="body" && fingerprint.Method=="keyword"{
-			tmpfingerprint.Name= fingerprint.Cms
-			for _,v := range fingerprint.Keyword{
-				if v!=""{
-					tmpfingerprint.Text = append(tmpfingerprint.Text,"(?i)"+regexp.QuoteMeta(v))
-				}
-			}
-			// 导入
-			err = db.Create(&tmpfingerprint).Error
-			if err != nil {
-				fmt.Println("Failed to save data:", err)
-				return err
-			}
-		}else if fingerprint.Location =="header" && fingerprint.Method=="keyword" {
-			tmpfingerprint.Name= fingerprint.Cms
-			for _,v := range fingerprint.Keyword{
-				if v!=""{
-					tmpfingerprint.HeaderRaw = append(tmpfingerprint.HeaderRaw,"(?i)"+regexp.QuoteMeta(v))
-				}
-				//tmpfingerprint.HeaderRaw = append(tmpfingerprint.HeaderRaw,"(?i)"+v)
-			}
-			//tmpfingerprint.HeaderRaw = fingerprint.Keyword
-			// 导入
-			err = db.Create(&tmpfingerprint).Error
-			if err != nil {
-				fmt.Println("Failed to save data:", err)
-				return err
-			}
-		}else if fingerprint.Method=="icon_hash" { //保存favicon哈希值
-			tmpfingerprint.Name= fingerprint.Cms
-			tmpfingerprint.IconHash = fingerprint.Keyword
-			// 导入
-			err = db.Create(&tmpfingerprint).Error
-			if err != nil {
-				fmt.Println("Failed to save data:", err)
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-// loadFingerprints 加载指纹并编译它们
-func (s *Wappalyze) loadFingerprints() error {
-	var fingerprintsStruct Fingerprints
-	err := json.Unmarshal([]byte(fingerprints), &fingerprintsStruct) // 将指定json文件反序列化到指纹结构体中
-	if err != nil {
-		return err
-	}
-	// 从数据库中读取指纹信息
-
-	for i, fingerprint := range fingerprintsStruct.Apps {
-		s.fingerprints.Apps[i] = compileFingerprint(fingerprint)
-	}
-	return nil
-}
-
-//// loadFingerprints 加载指纹并编译它们
-//func (s *Wappalyze) loadFingerprintsFormDBS(dsn string) error {
-//	//log.Println("加载指纹")
-//	//db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-//	//if err != nil {
-//	//	fmt.Println("Failed to connect to database:", err)
-//	//	return err
-//	//}
-//	// 从数据库载入指纹列表
-//	var fingerprintList []fingerprintModel.Fingerprint
-//	global.GVA_DB.Debug().Model(&fingerprintModel.Fingerprint{}).Find(&fingerprintList)
-//	for _, fingerprintTmp := range fingerprintList {
-//		// 提取从数据库中读取的指纹
-//		var fingerprint Fingerprint
-//		fingerprint.JS = fingerprintTmp.JS
-//		fingerprint.Meta=fingerprintTmp.Meta
-//		fingerprint.Website = fingerprintTmp.Website
-//		fingerprint.CSS = fingerprintTmp.CSS
-//		fingerprint.HTML = fingerprintTmp.HTML
-//		fingerprint.Script = fingerprintTmp.Script
-//		fingerprint.Headers=fingerprintTmp.Headers
-//		fingerprint.Cookies =fingerprintTmp.Cookies
-//		fingerprint.Implies =fingerprintTmp.Implies
-//		fingerprint.Description =fingerprintTmp.Description
-//		fingerprint.Text = fingerprintTmp.Text
-//		fingerprint.HeadersRaw = fingerprintTmp.HeaderRaw
-//		fingerprint.Pocs = fingerprintTmp.POCS
-//		if _,ok:=s.fingerprints.Apps[fingerprintTmp.Name];ok{
-//			s.fingerprints.Apps[fingerprintTmp.Name+"-"+strconv.Itoa(int(fingerprintTmp.ID))] = compileFingerprint(&fingerprint)
-//		}else {
-//			s.fingerprints.Apps[fingerprintTmp.Name] = compileFingerprint(&fingerprint)
-//		}
-//	}
-//	return nil
-//}
-
 func (s *Wappalyze) loadFingerprintsFormJSON() error {
+	var err error
+	var MyFingerprints Fingerprints
 
-	type FateBugFingprint struct {
-		ID   uint   `json:"id"`
-		Name string  `json:"name"`
-		Finger Fingerprint `json:"finger"`
-	}
-	var FateBugFingprints []FateBugFingprint
-	
-	err := json.Unmarshal([]byte(fateBugFingerprint), &FateBugFingprints) // 将指定json文件反序列化到指纹结构体中
+	err = json.Unmarshal([]byte(finger), &MyFingerprints) // 将指定json文件反序列化到指纹结构体中
 	if err != nil {
 		return err
 	}
-	for _, fingerprintTmp := range FateBugFingprints {
-		// 提取从数据库中读取的指纹
-		var fingerprint Fingerprint
-		fingerprint.JS = fingerprintTmp.Finger.JS
-		fingerprint.Meta=fingerprintTmp.Finger.Meta
-		fingerprint.Website = fingerprintTmp.Finger.Website
-		fingerprint.CSS = fingerprintTmp.Finger.CSS
-		fingerprint.HTML = fingerprintTmp.Finger.HTML
-		fingerprint.Script = fingerprintTmp.Finger.Script
-		fingerprint.Headers=fingerprintTmp.Finger.Headers
-		fingerprint.Cookies =fingerprintTmp.Finger.Cookies
-		fingerprint.Implies =fingerprintTmp.Finger.Implies
-		fingerprint.Description =fingerprintTmp.Finger.Description
-		fingerprint.Text = fingerprintTmp.Finger.Text
-		fingerprint.HeadersRaw = fingerprintTmp.Finger.HeadersRaw
-		fingerprint.Pocs = fingerprintTmp.Finger.Pocs
-		if _,ok:=s.fingerprints.Apps[fingerprintTmp.Name];ok{
-			s.fingerprints.Apps[fingerprintTmp.Name+"-"+strconv.Itoa(int(fingerprintTmp.ID))] = compileFingerprint(&fingerprint)
-		}else {
-			s.fingerprints.Apps[fingerprintTmp.Name] = compileFingerprint(&fingerprint)
-		}
+	for name, MyFingerprint := range MyFingerprints.Apps {
+		s.fingerprints.Apps[name] = compileFingerprint(MyFingerprint)
 	}
-	return nil
+	return err
 }
 
 // Fingerprint  基于接收到的响应头和响应体，识别目标的技术，
@@ -243,15 +88,12 @@ func (s *Wappalyze) Fingerprint(headers map[string][]string, body []byte,favicon
 	// 检查图标指纹
 	if faviconHash!=""{
 		//log.Println("图标探测")
-
 		for _, application := range s.checkFaviconHash(faviconHash) {
 			uniqueFingerprints.setIfNotExists(application)
 		}
-
 	}
 
 	// 如果头检查的次数大于0，则运行基于头的指纹识别.
-
 	for _, application := range s.checkHeaders(normalizedHeaders) {
 		uniqueFingerprints.setIfNotExists(application)
 	}

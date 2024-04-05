@@ -601,13 +601,12 @@ func (r *Runner) RunAlone(target string,reqResult resultFunc) {
 			reqResult(resp)
 		}
 	}(output)
-	//r.options.InputTargetHost = append(r.options.InputTargetHost,target)
-	//r.prepareInput()
+
 	protocol := r.options.protocol
 	r.process(target, &wg, r.hp, protocol, &r.scanopts, output)
-
-
 	wg.Wait()
+	close(output)
+	wgoutput.Wait()
 
 }
 
@@ -1243,6 +1242,7 @@ retry:
 	// 发起请求，获取响应
 	resp, err := hp.Do(req, httpx.UnsafeOptions{URIPath: reqURI})
 	if err != nil {
+		log.Println(req.URL.String()+":"+err.Error())
 		return  Result{URL: target.Host, Input: origInput, Err: err}
 		//log.Println(req.URL.String()+":"+err.Error())
 	}
@@ -1613,17 +1613,8 @@ retry:
 
 	// 指纹探测
 	var technologies []string
-	//log.Println(resp.StatusCode)
 	if scanopts.TechDetect {
-		// 记录开始时间
-		//startTime := time.Now()
-		//log.Println(string(resp.Data))
 		matches := r.wappalyzer.Fingerprint(resp.Headers, resp.Data,faviconMMH3)
-		//jsondate,_ := json.Marshal(matches)
-		//log.Println(string(jsondate))
-		// 记录结束时间
-		// 记录结束时间
-		//fmt.Printf("代码运行时间：%v\n", time.Now().Sub(startTime))
 		for match := range matches {
 			technologies = append(technologies, match)
 		}

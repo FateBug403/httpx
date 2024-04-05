@@ -269,53 +269,41 @@ func (f *CompiledFingerprints) matchString(data string, part part) []string {
 				}
 			}
 		case textPart:
-			//var patterns string
-			//for _,pattern := range fingerprint.text{
-			//	patterns := ""
-			//}
-			//startTime := time.Now()
-			num := 0
-			//log.Println(app,len(fingerprint.text))
+			//num := 0
 			for _, pattern := range fingerprint.text {
 				if valid, versionString := pattern.MatchString(data); valid {
-					num=num+1
+					//num=num+1
 					matched = true
 					version = versionString
 				}
 			}
-			//fmt.Printf("代码运行时间：%v\n", time.Now().Sub(startTime))
-			if num!=len(fingerprint.text){ // 判断是不是每个规则都匹配
-				matched = false
-			}
+			//if num!=len(fingerprint.text){ // 判断是不是每个规则都匹配
+			//	matched = false
+			//}
 		case headerRawPart:
-			num := 0
-			//log.Println(app,len(fingerprint.text))
+			//num := 0
 			for _, pattern := range fingerprint.headersRaw {
 				if valid, versionString := pattern.MatchString(data); valid {
-					num=num+1
+					//num=num+1
 					matched = true
 					version = versionString
-					//log.Println(pattern.regex.String())
-					//log.Println(versionString)
 				}
 			}
-			if num!=len(fingerprint.headersRaw){
-				matched = false
-			}
+			//if num!=len(fingerprint.headersRaw){
+			//	matched = false
+			//}
 		case iconHashPart:
-			num := 0
+			//num := 0
 			for _, pattern := range fingerprint.iconHash {
 				if valid, versionString := pattern.MatchString(data); valid {
-					num=num+1
+					//num=num+1
 					matched = true
 					version = versionString
-					//log.Println(pattern.regex.String())
-					//log.Println(fingerprint.pocs)
 				}
 			}
-			if num!=len(fingerprint.iconHash){
-				matched = false
-			}
+			//if num!=len(fingerprint.iconHash){
+			//	matched = false
+			//}
 		}
 
 		// 如果没有匹配，继续下一个指纹
@@ -481,9 +469,4 @@ func (f *CompiledFingerprints) matchMapString(keyValue map[string]string, part p
 
 func formatAppVersion(app, version string) string {
 	return fmt.Sprintf("%s:%s", app, version)
-}
-
-// GetFingerprints returns the fingerprint string from wappalyzer
-func GetFingerprints() string {
-	return fingerprints
 }
